@@ -4,39 +4,34 @@ __author__ = 'Shuang Qiu - sqiu522@gmail.com'
 from fuzzywuzzy import process
 import pandas as pd
 import csv
-import pickle
-
-
-import numpy as np
-from matplotlib import pyplot as plt
 
 mega_build = pd.read_csv('Mega Build MDU Opps.csv')
 direct = pd.read_csv('DIRECT.csv')
 
-mega_bd_address = mega_build['Building Address'][:5]
+mega_bd_address = mega_build['Building Address']
 choices = direct['Property Address 1']
-#result = []
-details = pd.DataFrame()
+result = []
+dr = pd.DataFrame()
 
 for address in mega_bd_address:
+    #get match result
     top_match = process.extractOne(address, choices)
     top_match=list(top_match)
+    result.append(top_match)
     #alt_match = process.extract(address, choices, limit=3)
+    #get direct info
     adr = top_match[0]
     details = direct.loc[direct['Property Address 1'] == adr]
+    dr=dr.append(details)
 
-    #result.append(top_match)
-    details.append(details)
-    print details
-details.to_csv('details.csv')
+#write details to file
+dr.to_csv('details.csv')
 
-
-
-#write to file
-# with open('result.csv', 'wb') as csvfile:
-#      writer = csv.writer(csvfile, delimiter=',',quoting=csv.QUOTE_ALL)
-#      for item in result:
-#          writer.writerow(item)
+#write fuzzy-match result to file
+with open('result.csv', 'wb') as csvfile:
+     writer = csv.writer(csvfile, delimiter=',',quoting=csv.QUOTE_ALL)
+     for item in result:
+         writer.writerow(item)
 
 # pickle.dump(result, 'result.csv')
 #pd.DataFrame.to_csv(result,'result.csv')
